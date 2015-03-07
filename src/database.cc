@@ -16,6 +16,7 @@
 #include "batch.h"
 #include "iterator.h"
 #include "common.h"
+#include "snapshot.h"
 
 namespace leveldown {
 
@@ -151,6 +152,7 @@ void Database::Init () {
   Nan::SetPrototypeMethod(tpl, "compactRange", Database::CompactRange);
   Nan::SetPrototypeMethod(tpl, "getProperty", Database::GetProperty);
   Nan::SetPrototypeMethod(tpl, "iterator", Database::Iterator);
+  Nan::SetPrototypeMethod(tpl, "snapshot", Database::Snapshot);
 }
 
 NAN_METHOD(Database::New) {
@@ -314,6 +316,13 @@ NAN_METHOD(Database::Get) {
   bool asBuffer = BooleanOptionValue(optionsObj, "asBuffer", true);
   bool fillCache = BooleanOptionValue(optionsObj, "fillCache", true);
 
+  const leveldb::Snapshot* dbSnapshot = NULL;
+  leveldown::Snapshot* snapshot =
+    node::ObjectWrap::Unwrap<leveldown::Snapshot>(optionsObj->
+      Get(NanNew("snapshot")).As<v8::Object>());
+  if (snapshot != NULL)
+    dbSnapshot = snapshot->dbSnapshot;
+
   ReadWorker* worker = new ReadWorker(
       database
     , new Nan::Callback(callback)
@@ -321,6 +330,7 @@ NAN_METHOD(Database::Get) {
     , asBuffer
     , fillCache
     , keyHandle
+    , dbSnapshot
   );
   // persist to prevent accidental GC
   v8::Local<v8::Object> _this = info.This();
@@ -517,6 +527,27 @@ NAN_METHOD(Database::Iterator) {
   */
 
   info.GetReturnValue().Set(iteratorHandle);
+}
+
+NAN_METHOD(Database::Snapshot) {
+  NanScope();
+
+  v8::Local<v8::Object> optionsObj;
+  if (args.Length() > 0 && args[0]->IsObject()) {
+    optionsObj = v8::Local<v8::Object>::Cast(args[0]);
+  }
+
+  v8::TryCatch try_catch;
+  v8::Local<v8::Object> snapshotHandle = Snapshot::NewInstance(
+      args.This()
+    , optionsObj
+  );
+  if (try_catch.HasCaught()) {
+    // NB: node::FatalException can segfault here if there is no room on stack.
+    return NanThrowError("Fatal Error in Database::Snapshot!");
+  }
+
+  NanReturnValue(snapshotHandle);
 }
 
 
