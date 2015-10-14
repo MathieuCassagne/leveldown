@@ -11,11 +11,11 @@ const leveldown    = require('../')
           benchmark        : argv.benchmark
         , useExisting      : argv.use_existing
         , db               : argv.db              || __dirname + '/db'
-        , num              : argv.num             || 1000000
+        , num              : argv.num             || 10000000
         , concurrency      : argv.concurrency     || 4
         , cacheSize        : argv.cacheSize       || 8
         , writeBufferSize  : argv.writeBufferSize || 4
-        , valueSize        : argv.valueSize       || 100
+        , valueSize        : argv.valueSize       || 128
         , timingOutput     : argv.timingOutput    || __dirname + '/timingOutput'
         , throughputOutput : argv.throughputOutput
       }
