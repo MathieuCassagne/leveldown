@@ -1,7 +1,7 @@
 {'targets': [{
     'target_name': 'rocksdb'
   , 'variables': {
-        'rdbversion': '4.1.fb'
+        'rdbversion': '4.6.fb'
     }
   , 'type': 'static_library'
 		# Overcomes an issue with the linker and thin .a files on SmartOS
