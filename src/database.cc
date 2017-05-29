@@ -80,7 +80,7 @@ uint64_t Database::ApproximateSizeFromDatabase (const leveldb::Range* range) {
   return size;
 }
 
-void Database::CompactRangeFromDatabase (const leveldb::Slice* start, 
+void Database::CompactRangeFromDatabase (const leveldb::Slice* start,
                                          const leveldb::Slice* end) {
   db->CompactRange(start, end);
 }
@@ -317,11 +317,11 @@ NAN_METHOD(Database::Get) {
   bool fillCache = BooleanOptionValue(optionsObj, "fillCache", true);
 
   v8::Local<v8::Object> snapshotHandle = optionsObj->Get(
-      NanNew("snapshot")).As<v8::Object>();
+      Nan::New("snapshot").ToLocalChecked()).As<v8::Object>();
   const leveldb::Snapshot* dbSnapshot = NULL;
   if (!snapshotHandle.IsEmpty() && !snapshotHandle->IsUndefined()) {
     if (!leveldown::Snapshot::HasInstance(snapshotHandle))
-      return NanThrowError("Snapshot type is incorrect");
+      return Nan::ThrowError("Snapshot type is incorrect");
     leveldown::Snapshot* snapshot =
         node::ObjectWrap::Unwrap<leveldown::Snapshot>(snapshotHandle);
     dbSnapshot = snapshot->dbSnapshot;
@@ -534,18 +534,18 @@ NAN_METHOD(Database::Iterator) {
 }
 
 NAN_METHOD(Database::Snapshot) {
-  NanScope();
+  Nan::HandleScope scope;
 
   v8::TryCatch try_catch;
   v8::Local<v8::Object> snapshotHandle = Snapshot::NewInstance(
-      args.This()
+      info.This()
   );
   if (try_catch.HasCaught()) {
     // NB: node::FatalException can segfault here if there is no room on stack.
-    return NanThrowError("Fatal Error in Database::Snapshot!");
+    return Nan::ThrowError("Fatal Error in Database::Snapshot!");
   }
 
-  NanReturnValue(snapshotHandle);
+  info.GetReturnValue().Set(snapshotHandle);
 }
 
 
