@@ -1,7 +1,7 @@
-const test       = require('tap').test
+const test       = require('tape').test
     , testCommon = require('abstract-leveldown/testCommon')
     , leveldown  = require('../')
-    , makeTest   = require('./make-test')
+    , makeTest   = require('./make');
 
 makeTest('test snapshot', function (db, t, done) {
   db.put('x', '1', function (err) {

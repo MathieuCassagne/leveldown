@@ -67,7 +67,7 @@ bool Snapshot::HasInstance (
 NAN_METHOD(Snapshot::New) {
   Nan::HandleScope scope;
 
-  Database* database = node::ObjectWrap::Unwrap<Database>(info[0]->ToObject());
+  Database* database = Nan::ObjectWrap::Unwrap<Database>(info[0]->ToObject());
 
   Snapshot* snapshot = new Snapshot(
       database
